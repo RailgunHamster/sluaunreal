@@ -18,6 +18,7 @@
 #include "lfunc.h"
 #include "lobject.h"
 #include "lstate.h"
+#include "SluaVersion.h"
 #include "SluaMicro.h"
 #include "UObject/UnrealType.h"
 #include "UObject/WeakObjectPtr.h"
