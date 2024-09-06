@@ -265,7 +265,7 @@ namespace NS_SLUA {
         ErrorDelegate errorDelegate;
         TArray<uint8> loadFile(const char* fn,FString& filepath);
         static int loader(lua_State* L);
-        static int import(lua_State *L);
+        static int Import(lua_State *L);
         static int getStringFromMD5(lua_State* L);
 
     public:
@@ -329,9 +329,7 @@ namespace NS_SLUA {
             TWeakObjectPtr<UObject> cacheObjectPtr;
             ImportedType importedType;
         };
-
-        typedef TMap<FString, ImportedObjectCache> CacheImportedMap;
-        CacheImportedMap cacheImportedMap;
+        TMap<FString, ImportedObjectCache> ImportedMapCache;
 
         FDeadLoopCheck* deadLoopCheck;
 

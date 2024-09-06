@@ -155,42 +155,38 @@ namespace NS_SLUA {
         return TArray<uint8>();
     }
 
-    int LuaState::import(lua_State *L) {
-        const char* name = LuaObject::checkValue<const char*>(L, 1);
-        if (!name) {
+    int LuaState::Import(lua_State *L) {
+        const char* Str = LuaObject::checkValue<const char*>(L, 1);
+        if (!Str) {
             luaL_error(L, "not a string");
             return 0;
         }
-        FString path = UTF8_TO_TCHAR(name);
-        if (!FPackageName::IsValidPath(path)) {
-            luaL_error(L, "bad object full path %s", name);
+        const FString Path = UTF8_TO_TCHAR(Str);
+        if (!FPackageName::IsValidPath(Path)) {
+            luaL_error(L, "bad object full path %s", Str);
             return 0;
         }
-        auto* state = LuaState::get(L);
-        if (auto* cacheImportedItem = state->cacheImportedMap.Find(path)) {
-            auto* cacheObj = cacheImportedItem->cacheObjectPtr.Get();
-            if (cacheObj) {
-                switch (cacheImportedItem->importedType) {
+        auto* State = LuaState::get(L);
+        if (const auto* Cache = State->ImportedMapCache.Find(Path)) {
+            if (auto* Obj = Cache->cacheObjectPtr.Get()) {
+                switch (Cache->importedType) {
                 case ImportedClass: {
-                    UClass* uclass = Cast<UClass>(cacheObj);
-                    if (uclass) {
-                        LuaObject::pushClass(L, uclass);
+                    if (auto* Class = Cast<UClass>(Obj)) {
+                        LuaObject::pushClass(L, Class);
                         return 1;
                     }
                     break;
                 }
                 case ImportedStruct: {
-                    UScriptStruct* ustruct = Cast<UScriptStruct>(cacheObj);
-                    if (ustruct) {
-                        LuaObject::pushStruct(L, ustruct);
+                    if (auto* Struct = Cast<UScriptStruct>(Obj)) {
+                        LuaObject::pushStruct(L, Struct);
                         return 1;
                     }
                     break;
                 }
                 case ImportedEnum: {
-                    UEnum* uenum = Cast<UEnum>(cacheObj);
-                    if (uenum) {
-                        LuaObject::pushEnum(L, uenum);
+                    if (auto* Enum = Cast<UEnum>(Obj)) {
+                        LuaObject::pushEnum(L, Enum);
                         return 1;
                     }
                     break;
@@ -200,23 +196,23 @@ namespace NS_SLUA {
                 }
             }
         }
-        auto* Obj = LoadObject<UObject>(nullptr, *path);
-        if (auto* uclass = Cast<UClass>(Obj)) {
-            LuaObject::pushClass(L, uclass);
-            state->cacheImportedMap.Add(name, ImportedObjectCache {uclass, ImportedClass});
+        auto* Obj = LoadObject<UObject>(nullptr, *Path);
+        if (auto* Class = Cast<UClass>(Obj)) {
+            LuaObject::pushClass(L, Class);
+            State->ImportedMapCache.Add(Str, ImportedObjectCache {Class, ImportedClass});
             return 1;
         }
-        if (auto* ustruct = Cast<UScriptStruct>(Obj)) {
-            LuaObject::pushStruct(L, ustruct);
-            state->cacheImportedMap.Add(name, ImportedObjectCache {ustruct, ImportedStruct});
+        if (auto* Struct = Cast<UScriptStruct>(Obj)) {
+            LuaObject::pushStruct(L, Struct);
+            State->ImportedMapCache.Add(Str, ImportedObjectCache {Struct, ImportedStruct});
             return 1;
         }
-        if (auto* uenum = Cast<UEnum>(Obj)) {
-            LuaObject::pushEnum(L, uenum);
-            state->cacheImportedMap.Add(name, ImportedObjectCache{ uenum, ImportedEnum });
+        if (auto* Enum = Cast<UEnum>(Obj)) {
+            LuaObject::pushEnum(L, Enum);
+            State->ImportedMapCache.Add(Str, ImportedObjectCache{ Enum, ImportedEnum });
             return 1;
         }
-        luaL_error(L, "Can't find class named %s", name);
+        luaL_error(L, "Can't find class named %s", Str);
         return 0;
     }
 
@@ -571,7 +567,7 @@ namespace NS_SLUA {
         
         luaL_openlibs(L);
         
-        lua_pushcfunction(L,import);
+        lua_pushcfunction(L, Import);
         lua_setglobal(L, "import");
         
         lua_pushcfunction(L,print);
@@ -697,9 +693,9 @@ namespace NS_SLUA {
     // engine will call this function on post gc
     void LuaState::onEngineGC()
     {
-        for (CacheImportedMap::TIterator it(cacheImportedMap); it; ++it)
-            if (!it.Value().cacheObjectPtr.IsValid())
-                it.RemoveCurrent();
+        for (decltype(ImportedMapCache)::TIterator It(ImportedMapCache); It; ++It)
+            if (!It.Value().cacheObjectPtr.IsValid())
+                It.RemoveCurrent();
     }
     
     void LuaState::onWorldCleanup(UWorld * World, bool bSessionEnded, bool bCleanupResources)
