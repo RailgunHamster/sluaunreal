@@ -1,17 +1,18 @@
-
-local Test=import('SluaTestCase');
-local t=Test();
+local Test = import("/Script/democpp.SluaTestCase")
+local t = Test()
 
 local han = t.OnTestAAA:Add(function(s)
-    print(s)
-    RemoveAAA()
+	print(s)
+	RemoveAAA()
 end)
 
-t:TestLuaCallback(function() print("callback bpvar") end)
+t:TestLuaCallback(function()
+	print("callback bpvar")
+end)
 
 function RemoveAAA()
-    print("AAAAAAAAAAAAAAAAA")
-    t.OnTestAAA:Remove(han)
+	print("AAAAAAAAAAAAAAAAA")
+	t.OnTestAAA:Remove(han)
 end
 
 t:TestAAA("abc AAAA")
@@ -21,8 +22,8 @@ print(string.format("Value=%s", tostring(t.Value)))
 t.Value = 100
 print(string.format("Value=%s", tostring(t.Value)))
 print()
-local v = FVector(10,20,30)
-local v2 = FVector(1,2,3)
+local v = FVector(10, 20, 30)
+local v2 = FVector(1, 2, 3)
 local i = 100
 local i2 = 200
 local s = "haha"
@@ -44,10 +45,10 @@ FVector2D.Max(FVector2D(0, 0), FVector2D(1, 1), Out1)
 local Out2 = FVector2D.Max(FVector2D(1, 1), FVector2D(0, 0), Out1)
 print(assert(tostring(Out1) == tostring(Out2)), Out1, Out2, Out1.X, Out1.Y)
 
-local arr=t:GetArray();
-print("arr len",arr:Num())
-for i=0,arr:Num()-1 do
-    print("arr item",i,arr:Get(i))
+local arr = t:GetArray()
+print("arr len", arr:Num())
+for i = 0, arr:Num() - 1 do
+	print("arr item", i, arr:Get(i))
 end
 
 print("begin TestInt_int")
@@ -77,9 +78,9 @@ local s = "hehe"
 local e = 1
 local arr = t:TestIntStrEnum_Arr(i, s, e)
 print(string.format("lua TestIntStrEnum_Arr i=%d, s=%s, e=%d", i, s, e))
-print("arr len",arr:Num())
-for i=0,arr:Num()-1 do
-    print("arr item",i,arr:Get(i))
+print("arr len", arr:Num())
+for i = 0, arr:Num() - 1 do
+	print("arr item", i, arr:Get(i))
 end
 print("end TestIntStrEnum_Arr")
 
@@ -92,19 +93,19 @@ print(string.format("lua TestOIntOStrOEnum i=%d, s=%s, e=%d", i, s, e))
 print("end TestOIntOStrOEnum")
 
 local info = t:GetUserInfo()
-print("info.name",info.name)
-assert(info.name=="女战士")
-assert(info.id==1001001)
-assert(info.level==12)
+print("info.name", info.name)
+assert(info.name == "女战士")
+assert(info.id == 1001001)
+assert(info.level == 12)
 
-t.OnTestGetCount:Bind(function (s)
-    print(s)
-    return 1111
+t.OnTestGetCount:Bind(function(s)
+	print(s)
+	return 1111
 end)
 
 t:TestUnicastDelegate("test unicast delegate")
 
-local FArrayToBinStringTest = import("ArrayToBinStringTest")
+local FArrayToBinStringTest = import("/Script/democpp.ArrayToBinStringTest")
 local ArrayToBinStringTest = FArrayToBinStringTest()
 ArrayToBinStringTest.binString = "binString"
 assert(type(ArrayToBinStringTest.binString) == "string")
@@ -114,31 +115,32 @@ print(ArrayToBinStringTest.binString)
 
 foos = t.foos
 t:setupfoo(t)
-print("get foos",foos,foos:Num())
-for i=1,foos:Num() do
-    print("foos property",i,foos:Get(i-1))
+print("get foos", foos, foos:Num())
+for i = 1, foos:Num() do
+	print("foos property", i, foos:Get(i - 1))
 end
 
 userInfo = t.userInfo
-print("userInfo",userInfo)
+print("userInfo", userInfo)
 
 t.userArray = {}
 print("t.userArray", t.userArray, t.userArray)
 assert(t.userArray == t.userArray)
 userArray = t.userArray
-print("userArray",userArray)
+print("userArray", userArray)
 
 info = t.info
-print("info",info)
+print("info", info)
 
 local map1 = t:GetMap()
-print("map1",map1)
+print("map1", map1)
 local map2 = t:GetMap(map1)
 print("map1 == map2", map1, map2, assert(map1 == map2))
 
-local SluaTestCase=import('SluaTestCase');
-local t=SluaTestCase()
+local SluaTestCase = import("/Script/democpp.SluaTestCase")
+local t = SluaTestCase()
 for k, v in pairs(t) do
-    print("SluaTestCase iter", k, v)
+	print("SluaTestCase iter", k, v)
 end
 print("SluaTestCase weakptr:", t.weakptr) ---expect as uobject type not LuaArray.
+

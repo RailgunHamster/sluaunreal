@@ -5,22 +5,22 @@
 ---
 
 local TestLuaRPCBase = {
-    ClientRPC = {},     --S2C类RPC列表，类似UFUNCTION宏中的Client
+	ClientRPC = {}, --S2C类RPC列表，类似UFUNCTION宏中的Client
 }
 
-local EPropertyClass = import("EPropertyClass")
+local EPropertyClass = import("/Script/slua_unreal.EPropertyClass")
 TestLuaRPCBase.ClientRPC.ClientRPC_TestRPC = {
-    -- 是否可靠RPC
-    Reliable = true,
-    -- 定义参数列表
-    Params =
-    {
-        EPropertyClass.Str,
-    }
+	-- 是否可靠RPC
+	Reliable = true,
+	-- 定义参数列表
+	Params = {
+		EPropertyClass.Str,
+	},
 }
 
 function TestLuaRPCBase:ClientRPC_TestRPC(Str)
-    print(Str)
+	print(Str)
 end
 
 return Class(nil, nil, TestLuaRPCBase)
+

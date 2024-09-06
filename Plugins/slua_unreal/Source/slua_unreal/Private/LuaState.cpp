@@ -157,81 +157,66 @@ namespace NS_SLUA {
 
     int LuaState::import(lua_State *L) {
         const char* name = LuaObject::checkValue<const char*>(L, 1);
-        if (name) {
-            LuaState* state = LuaState::get(L);
-            ImportedObjectCache* cacheImportedItem = state->cacheImportedMap.Find(name);
-            if (cacheImportedItem)
-            {
-                UObject* cacheObj = cacheImportedItem->cacheObjectPtr.Get();
-                if (cacheObj) {
-                    switch (cacheImportedItem->importedType) 
-                    {
-                    case ImportedClass:
-                    {
-                        UClass* uclass = Cast<UClass>(cacheObj);
-                        if (uclass) {
-                            LuaObject::pushClass(L, uclass);
-                            return 1;
-                        }
-                        break;
+        if (!name) {
+            luaL_error(L, "not a string");
+            return 0;
+        }
+        FString path = UTF8_TO_TCHAR(name);
+        if (!FPackageName::IsValidPath(path)) {
+            luaL_error(L, "bad object full path %s", name);
+            return 0;
+        }
+        auto* state = LuaState::get(L);
+        if (auto* cacheImportedItem = state->cacheImportedMap.Find(path)) {
+            auto* cacheObj = cacheImportedItem->cacheObjectPtr.Get();
+            if (cacheObj) {
+                switch (cacheImportedItem->importedType) {
+                case ImportedClass: {
+                    UClass* uclass = Cast<UClass>(cacheObj);
+                    if (uclass) {
+                        LuaObject::pushClass(L, uclass);
+                        return 1;
                     }
-                    case ImportedStruct:
-                    {
-                        UScriptStruct* ustruct = Cast<UScriptStruct>(cacheObj);
-                        if (ustruct) {
-                            LuaObject::pushStruct(L, ustruct);
-                            return 1;
-                        }
-                        break;
+                    break;
+                }
+                case ImportedStruct: {
+                    UScriptStruct* ustruct = Cast<UScriptStruct>(cacheObj);
+                    if (ustruct) {
+                        LuaObject::pushStruct(L, ustruct);
+                        return 1;
                     }
-                    case ImportedEnum:
-                    {
-                        UEnum* uenum = Cast<UEnum>(cacheObj);
-                        if (uenum) {
-                            LuaObject::pushEnum(L, uenum);
-                            return 1;
-                        }
-                        break;
+                    break;
+                }
+                case ImportedEnum: {
+                    UEnum* uenum = Cast<UEnum>(cacheObj);
+                    if (uenum) {
+                        LuaObject::pushEnum(L, uenum);
+                        return 1;
                     }
-                    default:
-                        break;
-                    }
+                    break;
+                }
+                default:
+                    break;
                 }
             }
-
-#if ENGINE_MAJOR_VERSION==5 && ENGINE_MINOR_VERSION>0
-            static UPackage* AnyPackage = (UPackage*)-1;
-#else
-            static UPackage* AnyPackage = ANY_PACKAGE;
-#endif
-            FString path = UTF8_TO_TCHAR(name);
-            if (!FindObject<UObject>(AnyPackage, *path)) {
-                // Try to load object if not found!
-                LoadObject<UObject>(NULL, *path);
-            }
-
-            UClass* uclass = FindObject<UClass>(AnyPackage, *path);
-            if (uclass) {
-                LuaObject::pushClass(L, uclass);
-                state->cacheImportedMap.Add(name, ImportedObjectCache {uclass, ImportedClass});
-                return 1;
-            }
-            UScriptStruct* ustruct = FindObject<UScriptStruct>(AnyPackage, *path);
-            if (ustruct) {
-                LuaObject::pushStruct(L, ustruct);
-                state->cacheImportedMap.Add(name, ImportedObjectCache {ustruct, ImportedStruct});
-                return 1;
-            }
-
-            UEnum* uenum = FindObject<UEnum>(AnyPackage, *path);
-            if (uenum) {
-                LuaObject::pushEnum(L, uenum);
-                state->cacheImportedMap.Add(name, ImportedObjectCache{ uenum, ImportedEnum });
-                return 1;
-            }
-
-            luaL_error(L, "Can't find class named %s", name);
         }
+        auto* Obj = LoadObject<UObject>(nullptr, *path);
+        if (auto* uclass = Cast<UClass>(Obj)) {
+            LuaObject::pushClass(L, uclass);
+            state->cacheImportedMap.Add(name, ImportedObjectCache {uclass, ImportedClass});
+            return 1;
+        }
+        if (auto* ustruct = Cast<UScriptStruct>(Obj)) {
+            LuaObject::pushStruct(L, ustruct);
+            state->cacheImportedMap.Add(name, ImportedObjectCache {ustruct, ImportedStruct});
+            return 1;
+        }
+        if (auto* uenum = Cast<UEnum>(Obj)) {
+            LuaObject::pushEnum(L, uenum);
+            state->cacheImportedMap.Add(name, ImportedObjectCache{ uenum, ImportedEnum });
+            return 1;
+        }
+        luaL_error(L, "Can't find class named %s", name);
         return 0;
     }
 

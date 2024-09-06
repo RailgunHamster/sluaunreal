@@ -4,8 +4,9 @@
 --- DateTime: 2023/7/14 20:53
 ---
 
-local TestCaseObject = import("TestCaseObject")
+local TestCaseObject = import("/Script/democpp.TestCaseObject")
 local Object = TestCaseObject()
 print("Object.TestCaseInterface before:", Object.TestCaseInterface)
 Object.TestCaseInterface = Object
 print("Object.TestCaseInterface:after", Object.TestCaseInterface)
+
