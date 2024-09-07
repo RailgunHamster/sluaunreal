@@ -162,10 +162,12 @@ namespace NS_SLUA {
             return 0;
         }
         const FString Path = UTF8_TO_TCHAR(Str);
+#if !UE_BUILD_SHIPPING
         if (!FPackageName::IsValidPath(Path)) {
             luaL_error(L, "bad object full path %s", Str);
             return 0;
         }
+#endif
         auto* State = LuaState::get(L);
         if (const auto* Cache = State->ImportedMapCache.Find(Path)) {
             if (auto* Obj = Cache->cacheObjectPtr.Get()) {
