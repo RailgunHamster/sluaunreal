@@ -265,6 +265,10 @@ namespace NS_SLUA {
         ErrorDelegate errorDelegate;
         TArray<uint8> loadFile(const char* fn,FString& filepath);
         static int loader(lua_State* L);
+        /**
+         * For Lua
+         * @param path string like "/Script/Engine.KismetSystemLibrary" or "/Game/XXX.YYY" etc
+         */
         static int Import(lua_State *L);
         static int getStringFromMD5(lua_State* L);
 
