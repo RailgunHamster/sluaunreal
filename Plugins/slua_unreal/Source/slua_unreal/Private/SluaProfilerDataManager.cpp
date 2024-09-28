@@ -7,8 +7,8 @@
 #include "Serialization/MemoryReader.h"
 #include "Misc/Paths.h"
 #include <LuaState.h>
-
 #include "HAL/RunnableThread.h"
+#include "Misc/ScopedSlowTask.h"
 #define ROOT_NAME "ROOT"
 
 FProfileDataProcessRunnable* SluaProfilerDataManager::ProcessRunnable;
