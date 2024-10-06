@@ -123,10 +123,10 @@ namespace NS_SLUA {
 
     void LuaMemoryProfile::onStart(LuaState* LS)
     {
-        auto *record = TryGetMemoryRecord(LS);
-        auto *memoryIncrease = TryGetMemoryIncrease(LS);
-        record->Empty();
-        memoryIncrease->Empty();
+        auto *memRecord = TryGetMemoryRecord(LS);
+        auto *memIncrease = TryGetMemoryIncrease(LS);
+        memRecord->Empty();
+        memIncrease->Empty();
     }
 
     void LuaMemoryProfile::stop(lua_State* L)

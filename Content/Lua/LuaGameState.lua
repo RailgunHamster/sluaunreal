@@ -39,10 +39,10 @@ LuaGameState.MulticastRPC.TestMulticastRPC = {
 	},
 }
 
-function LuaGameState:ctor(selfType)
-	print("LuaGameState ctor", selfType, assert(selfType == require("LuaGameState")))
-	self.Name = "LuaGameStateTestName"
-	self.TickCounter = 0
+function LuaGameState:ctor()
+    print("LuaGameState ctor", assert(selfType == require("LuaGameState")))
+    self.Name = "LuaGameStateTestName"
+    self.TickCounter = 0
 end
 
 function LuaGameState:_PostConstruct()
